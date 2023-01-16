@@ -3,8 +3,7 @@ package ru.job4j.quartz;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.InputStream;
 import java.util.Properties;
 
 import static org.quartz.JobBuilder.*;
@@ -19,8 +18,7 @@ public class AlertRabbit {
             scheduler.start();
             JobDetail job = newJob(Rabbit.class).build();
             SimpleScheduleBuilder times = simpleSchedule()
-                    .withIntervalInSeconds(Integer.parseInt(
-                            new AlertRabbit().read("properties/rabbit.properties")))
+                    .withIntervalInSeconds(Integer.parseInt(read().getProperty("rabbit.interval")))
                     .repeatForever();
             Trigger trigger = newTrigger()
                     .startNow()
@@ -39,15 +37,14 @@ public class AlertRabbit {
         }
     }
 
-    public String read(String path) {
-        String rsl = "";
-        try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-            Properties properties = new Properties();
-            properties.load(br);
-            rsl = properties.getProperty("rabbit.interval");
+    public static Properties read() {
+        Properties properties = new Properties();
+        try (InputStream in = AlertRabbit.class.getClassLoader()
+                .getResourceAsStream("rabbit.properties")) {
+            properties.load(in);
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return rsl;
+        return properties;
     }
 }
