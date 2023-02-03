@@ -18,7 +18,7 @@ import static org.quartz.TriggerBuilder.newTrigger;
 
 public class AlertRabbit {
 
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws Exception {
         try {
             Properties pr = read();
             Class.forName(pr.getProperty("driver_class"));
@@ -57,7 +57,8 @@ public class AlertRabbit {
                     .getJobDataMap()
                     .get("connection");
             try (PreparedStatement statement =
-                         connection.prepareStatement("insert into rabbit(created_date) values (?)")) {
+                         connection.prepareStatement("insert into rabbit(created_date) "
+                                 + "values (?)")) {
                 statement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
                 statement.execute();
             } catch (Exception e) {
