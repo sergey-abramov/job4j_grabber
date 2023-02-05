@@ -5,15 +5,23 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import ru.job4j.Post;
 
 import java.io.IOException;
+import java.util.List;
 
-public class HabrCareerParse {
+public class HabrCareerParse implements Parse {
 
     private static final String SOURCE_LINK = "https://career.habr.com";
 
     private static final String PAGE_LINK =
             String.format("%s/vacancies/java_developer", SOURCE_LINK);
+
+    private final DateTimeParser dateTimeParser;
+
+    public HabrCareerParse(DateTimeParser dateTimeParser) {
+        this.dateTimeParser = dateTimeParser;
+    }
 
     public static void main(String[] args) throws IOException {
         for (int i = 1; i < 6; i++) {
@@ -41,11 +49,12 @@ public class HabrCareerParse {
         Connection connection = Jsoup.connect(link);
         Document document = connection.get();
         Elements rows = document.select(".vacancy-show");
-        rows.forEach(row -> {
-            Element content = row.select(".faded-content__container").first();
-            rsl[0] = content.text();
-        });
-        System.out.println(rsl[0]);
+        rows.forEach(row -> rsl[0] = row.select(".vacancy-description__text").text());
         return rsl[0];
+    }
+
+    @Override
+    public List<Post> list(String link) {
+        return null;
     }
 }
