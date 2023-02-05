@@ -44,13 +44,12 @@ public class HabrCareerParse implements Parse {
         }
     }
 
-    private String retrieveDescription(String link) throws IOException {
-        final String[] rsl = {""};
-        Connection connection = Jsoup.connect(link);
-        Document document = connection.get();
-        Elements rows = document.select(".vacancy-show");
-        rows.forEach(row -> rsl[0] = row.select(".vacancy-description__text").text());
-        return rsl[0];
+    private String retrieveDescription(String link) {
+        try {
+            return Jsoup.connect(link).get().select(".vacancy-description__text").text();
+        } catch (IOException e) {
+            throw new IllegalArgumentException();
+        }
     }
 
     @Override
