@@ -29,7 +29,9 @@ public class HabrCareerParse {
                 String vacancyName = titleElement.text();
                 String link = String.format("%s%s", SOURCE_LINK, linkElement.attr("href"));
                 String data = dataV.attr("datetime");
-                System.out.printf("%s, %s %s%n", data, vacancyName, link);
+                HabrCareerDateTimeParser hbr = new HabrCareerDateTimeParser();
+                String dataFormat = hbr.parse(data).toString();
+                System.out.printf("%s, %s %s%n", dataFormat, vacancyName, link);
             });
         }
     }
