@@ -8,6 +8,7 @@ import org.jsoup.select.Elements;
 import ru.job4j.Post;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class HabrCareerParse implements Parse {
@@ -23,24 +24,12 @@ public class HabrCareerParse implements Parse {
         this.dateTimeParser = dateTimeParser;
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
+        HabrCareerDateTimeParser timeParser = new HabrCareerDateTimeParser();
+        HabrCareerParse hbr = new HabrCareerParse(timeParser);
         for (int i = 1; i < 6; i++) {
             String page = String.format("%s?page=%s", PAGE_LINK, i);
-            Connection connection = Jsoup.connect(page);
-            Document document = connection.get();
-            Elements rows = document.select(".vacancy-card__inner");
-            rows.forEach(row -> {
-                Element titleElement = row.select(".vacancy-card__title").first();
-                Element linkElement = titleElement.child(0);
-                Element dataElement = row.select(".vacancy-card__date").first();
-                Element dataV = dataElement.child(0);
-                String vacancyName = titleElement.text();
-                String link = String.format("%s%s", SOURCE_LINK, linkElement.attr("href"));
-                String data = dataV.attr("datetime");
-                HabrCareerDateTimeParser hbr = new HabrCareerDateTimeParser();
-                String dataFormat = hbr.parse(data).toString();
-                System.out.printf("%s, %s %s%n", dataFormat, vacancyName, link);
-            });
+            System.out.println(hbr.list(page));
         }
     }
 
@@ -54,6 +43,29 @@ public class HabrCareerParse implements Parse {
 
     @Override
     public List<Post> list(String link) {
-        return null;
+        List<Post> rsl = new ArrayList<>();
+        try {
+            Connection connection = Jsoup.connect(link);
+            Document document = connection.get();
+            Elements rows = document.select(".vacancy-card__inner");
+            rows.forEach(row -> {
+                Element titleElement = row.select(".vacancy-card__title").first();
+                Element linkElement = titleElement.child(0);
+                Element dataElement = row.select(".vacancy-card__date").first();
+                Element dataV = dataElement.child(0);
+                String data = dataV.attr("datetime");
+                String linkVacancy = String.format("%s%s", SOURCE_LINK, linkElement.attr("href"));
+                HabrCareerDateTimeParser hbr = new HabrCareerDateTimeParser();
+                rsl.add(new Post(
+                        rsl.size(),
+                        titleElement.text(),
+                        linkVacancy,
+                        retrieveDescription(linkVacancy),
+                        hbr.parse(data)));
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return rsl;
     }
 }
