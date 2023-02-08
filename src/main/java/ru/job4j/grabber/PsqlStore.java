@@ -48,13 +48,7 @@ public class PsqlStore implements Store {
                      cnn.prepareStatement("select * from post")) {
            try (ResultSet resultSet = statement.executeQuery()) {
                while (resultSet.next()) {
-                   posts.add(new Post(
-                           resultSet.getInt("id"),
-                           resultSet.getString("post_name"),
-                           resultSet.getString("link"),
-                           resultSet.getString("description"),
-                           resultSet.getTimestamp("created_date").toLocalDateTime()
-                           ));
+                   posts.add(receiving(resultSet));
                }
            }
         } catch (Exception e) {
@@ -65,23 +59,19 @@ public class PsqlStore implements Store {
 
     @Override
     public Post findById(int id) {
-        Post post = new Post(0, "", "", "", LocalDateTime.now());
+        Post rsl = null;
         try (PreparedStatement statement =
                      cnn.prepareStatement("select * from post where id = ?")) {
             statement.setInt(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
                 while (resultSet.next()) {
-                    post.setId(resultSet.getInt("id"));
-                    post.setTitle(resultSet.getString("post_name"));
-                    post.setLink(resultSet.getString("link"));
-                    post.setDescription(resultSet.getString("description"));
-                    post.setCreated(resultSet.getTimestamp("created_date").toLocalDateTime());
+                    rsl = receiving(resultSet);
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return post;
+        return rsl;
     }
 
     @Override
@@ -101,10 +91,19 @@ public class PsqlStore implements Store {
         return rsl;
     }
 
+    public static Post receiving(ResultSet resultSet) throws Exception {
+        Post post = new Post(0, "", "", "", LocalDateTime.now());
+        post.setId(resultSet.getInt("id"));
+        post.setTitle(resultSet.getString("post_name"));
+        post.setLink(resultSet.getString("link"));
+        post.setDescription(resultSet.getString("description"));
+        post.setCreated(resultSet.getTimestamp("created_date").toLocalDateTime());
+        return post;
+    }
+
     public static void main(String[] args) {
         Properties pr = read();
-        try {
-            PsqlStore psqlStore = new PsqlStore(pr);
+        try (PsqlStore psqlStore = new PsqlStore(pr)) {
             DateTimeParser dtp = new HabrCareerDateTimeParser();
             Parse parse = new HabrCareerParse(dtp);
             List<Post> posts = parse.list(pr.getProperty("parse_link"));
