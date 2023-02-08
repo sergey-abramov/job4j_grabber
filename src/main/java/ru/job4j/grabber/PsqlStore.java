@@ -30,12 +30,18 @@ public class PsqlStore implements Store {
                      cnn.prepareStatement(
                              "insert into post(post_name, link, description, created_date)"
                              + "values (?, ?, ?, ?) on conflict "
-                                     + "on constraint post_link_key do nothing")) {
+                                     + "on constraint post_link_key do nothing",
+                             Statement.RETURN_GENERATED_KEYS)) {
             statement.setString(1, post.getTitle());
             statement.setString(2, post.getLink());
             statement.setString(3, post.getDescription());
             statement.setTimestamp(4, Timestamp.valueOf(post.getCreated()));
             statement.execute();
+            try (ResultSet generatedKeys = statement.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    post.setId(generatedKeys.getInt(1));
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -64,7 +70,7 @@ public class PsqlStore implements Store {
                      cnn.prepareStatement("select * from post where id = ?")) {
             statement.setInt(1, id);
             try (ResultSet resultSet = statement.executeQuery()) {
-                while (resultSet.next()) {
+                if (resultSet.next()) {
                     rsl = receiving(resultSet);
                 }
             }
