@@ -39,4 +39,5 @@ class GenerationTest {
         assertThatThrownBy(() -> generation.produce("I am a ${name}, Who are ${subject}? ", map))
                 .isInstanceOf(IllegalArgumentException.class);
     }
+
 }
