@@ -1,8 +1,20 @@
 package ru.job4j.srp;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import ru.job4j.ocp.Employees;
+import ru.job4j.ocp.ReportJSONEngine;
+import ru.job4j.ocp.ReportXMLEngine;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import java.io.BufferedReader;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.List;
@@ -85,5 +97,27 @@ class ReportEngineTest {
                     .append(System.lineSeparator());
         }
         assertThat(engine.generate(em -> true)).isEqualTo(expect.toString());
+    }
+
+    @Test
+    public void whenJsonGenerated() {
+        Gson gson = new GsonBuilder().create();
+        ReportJSONEngine engine = new ReportJSONEngine(gson, STORE, parser);
+        String expect = gson.toJson(STORE.findBy(e -> true));
+        assertThat(engine.generate(em -> true)).isEqualTo(expect);
+    }
+
+    @Test
+    public void whenXMLGenerated() throws Exception {
+        JAXBContext context = JAXBContext.newInstance(Employees.class);
+        ReportXMLEngine engine = new ReportXMLEngine(context, STORE, parser);
+        String expected = "";
+        try (StringWriter writer = new StringWriter()) {
+            Marshaller marshaller = context.createMarshaller();
+            marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+            marshaller.marshal(new Employees(STORE.findBy(e -> true)), writer);
+            expected = writer.getBuffer().toString();
+        }
+        assertThat(engine.generate(em -> true)).isEqualTo(expected);
     }
 }
