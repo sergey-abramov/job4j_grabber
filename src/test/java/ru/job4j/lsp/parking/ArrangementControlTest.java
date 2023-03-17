@@ -18,7 +18,7 @@ class ArrangementControlTest {
         for (int i = 0; i < 4; i++) {
             control.arrangement(new Truck());
         }
-        assertThat(parking.getCount()).isEqualTo(List.of(0,0));
+        assertThat(parking.getCount()).isEqualTo(List.of(0, 0));
     }
 
     @Test
@@ -29,7 +29,7 @@ class ArrangementControlTest {
         for (int i = 0; i < 3; i++) {
             control.arrangement(new Truck());
         }
-        assertThat(parking.getCount()).isEqualTo(List.of(3,0));
+        assertThat(parking.getCount()).isEqualTo(List.of(3, 0));
     }
 
     @Test
