@@ -21,6 +21,7 @@ class ArrangementControlTest {
             control.arrangement(new Truck(2));
         }
         assertThat(parking.getCount()).isEqualTo(List.of(0, 0));
+
     }
 
     @Test

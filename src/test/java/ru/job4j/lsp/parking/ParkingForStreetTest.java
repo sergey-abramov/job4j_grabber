@@ -14,6 +14,7 @@ class ParkingForStreetTest {
         Parking parking = new ParkingForStreet(10, 10, new ArrayList<>());
         assertThatThrownBy(() -> parking.add(new Truck(1)))
                 .isInstanceOf(IllegalArgumentException.class);
+
     }
 
     @Test
