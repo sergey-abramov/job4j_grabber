@@ -9,6 +9,6 @@ public class ArrangementControl {
     }
 
     public void arrangement(Car car) {
-
+        parking.add(car);
     }
 }

@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface Parking {
 
-    void add();
+    void add(Car car);
 
     List<Integer> getCount();
 }
