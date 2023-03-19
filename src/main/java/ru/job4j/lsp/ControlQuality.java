@@ -22,6 +22,7 @@ public class ControlQuality {
         for (Store store : stories) {
             list.addAll(store.getFoods());
         }
+        stories.clear();
         for (Food food : list) {
             distribute(food);
         }
