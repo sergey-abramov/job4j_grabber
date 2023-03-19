@@ -1,5 +1,6 @@
 package ru.job4j.lsp;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ControlQuality {
@@ -13,6 +14,16 @@ public class ControlQuality {
     public void distribute(Food food) {
         for (Store s : stories) {
             s.add(food);
+        }
+    }
+
+    public void remove() {
+        List<Food> list = new ArrayList<>();
+        for (Store store : stories) {
+            list.addAll(store.getFoods());
+        }
+        for (Food food : list) {
+            distribute(food);
         }
     }
 }
